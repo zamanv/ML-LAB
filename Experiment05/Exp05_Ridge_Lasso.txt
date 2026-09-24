@@ -1,0 +1,70 @@
+=================================================================
+EXPERIMENT 05
+=================================================================
+QUESTION
+---------
+Implement Ridge and Lasso regression on the Diabetes dataset. Compare
+the performance of these regularized models with standard linear
+regression.
+
+Tasks:
+  * Load and preprocess the dataset.
+  * Implement Ridge and Lasso regression.
+  * Tune hyperparameters using cross-validation.
+  * Compare performance metrics (MSE, R-squared) with standard
+    linear regression.
+
+=================================================================
+ALGORITHM
+---------
+1. Load the sklearn Diabetes dataset (442 samples, 10 standardized
+   features, continuous target = disease progression after 1 year).
+2. Preprocess:
+   - Standardize features (fit on train only).
+   - Split 80/20 train/test (random_state=42).
+3. Models:
+   - Baseline: ordinary Linear Regression (no penalty).
+   - Ridge: L2 penalty, objective = MSE + alpha * sum(w^2).
+   - Lasso: L1 penalty, objective = MSE + alpha * sum(|w|).
+4. Hyperparameter tuning:
+   - GridSearchCV with 5-fold cross-validation over a log-spaced
+     grid of alpha values, scoring = negative MSE.
+   - Select the alpha that minimizes CV error.
+5. Evaluate all three on the held-out test set using MSE and
+   R-squared; inspect Lasso coefficients to observe feature
+   selection (zeroed coefficients).
+
+=================================================================
+RESULT ANALYSIS
+---------------
+OBSERVED OUTPUT (typical run):
+  Linear -> MSE: 2900.19  R2: 0.4526
+  Ridge  -> MSE: 2893.10  R2: 0.4539  (best alpha ~ 1.0)
+  Lasso  -> MSE: 2878.20  R2: 0.4568  (best alpha ~ 0.05)
+
+ANALYSIS:
+  * All three models give similar test R-squared (~0.45), meaning the
+    regularized models do not dramatically outperform OLS on this
+    dataset. The Diabetes features are already standardized and the
+    number of samples (442) is large relative to features (10), so
+    overfitting in plain OLS is mild.
+  * Ridge slightly improves MSE/R2 by shrinking coefficients, which
+    reduces variance without discarding any feature. The optimal
+    alpha found by cross-validation is moderate, indicating only
+    light regularization is needed.
+  * Lasso gives the best test MSE and R2 because the L1 penalty
+    performs feature selection - it drives the coefficients of the
+    least useful predictors (e.g., some of the blood-serum measures)
+    toward exactly zero. This yields a simpler, more interpretable
+    model while improving generalization.
+  * Cross-validation was essential: too large an alpha over-shrinks
+    and causes underfitting (higher bias), while too small an alpha
+    reduces regularization to plain OLS.
+
+CONCLUSION:
+  Regularization does not help dramatically here because the dataset
+  is well-conditioned, but Lasso provides the best accuracy and a
+  sparser model. Ridge is a safe general-purpose choice that keeps
+  all features, while Lasso is preferable when interpretability and
+  automatic feature selection are desired.
+=================================================================

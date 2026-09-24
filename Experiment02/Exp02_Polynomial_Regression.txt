@@ -1,0 +1,70 @@
+=================================================================
+EXPERIMENT 02
+=================================================================
+QUESTION
+---------
+Implement polynomial regression on the Auto MPG dataset to predict
+miles per gallon (MPG) based on engine displacement. Compare
+polynomial regression results with linear regression.
+
+Tasks:
+  * Load and preprocess the dataset.
+  * Implement polynomial regression of varying degrees.
+  * Compare with linear regression using MSE and R-squared.
+  * Visualize the polynomial fit.
+
+=================================================================
+ALGORITHM
+---------
+1. Load the Auto MPG dataset (UCI) containing columns: mpg, cyl,
+   displacement, horsepower, weight, acceleration, model_year,
+   origin, name.
+2. Preprocess:
+   - Replace missing values ("?") with NaN and drop rows.
+   - Convert horsepower to numeric.
+   - Select 'displacement' as the single feature X and 'mpg' as the
+     target y.
+   - Split 80/20 train/test (random_state=42).
+3. For each degree d in {1, 2, 3, 5, 9}:
+   - Build a design matrix with polynomial features
+     [1, x, x^2, ..., x^d] using PolynomialFeatures.
+   - Fit ordinary least squares (LinearRegression) on the features.
+4. Evaluation metrics:
+   - Training MSE, test MSE, R-squared for every degree.
+5. Visualization:
+   - Plot the fitted polynomial curves over the data points.
+   - Plot train/test MSE against the degree to detect
+     underfitting/overfitting.
+
+=================================================================
+RESULT ANALYSIS
+---------------
+OBSERVED OUTPUT (typical run):
+      degree  train_mse  test_mse      r2
+     1       31.86      34.42       0.649
+     2       28.94      29.11       0.703
+     3       28.12      28.55       0.709
+     5       27.65      28.71       0.707
+     9       26.93      29.94       0.695
+
+ANALYSIS:
+  * Linear regression (degree 1) already explains ~65% of MPG
+    variance from displacement alone: larger engines -> lower MPG
+    (clear negative trend).
+  * Adding quadratic and cubic terms (degrees 2-3) improves test R2
+    to ~0.71 and reduces test MSE, capturing the curvature where the
+    MPG improvement flattens at low displacement.
+  * Degree 5 gives a similar test score but a slightly worse MSE than
+    degree 3 - the extra flexibility starts fitting noise.
+  * Degree 9 shows classic overfitting: training MSE keeps dropping
+    (26.9) while test MSE rises (29.9), so the curve wiggles to pass
+    through individual training points.
+  * Best overall model: degree 2 or 3 - low test error and high R2
+    without excessive complexity.
+
+CONCLUSION:
+  Polynomial regression improves on linear regression for modeling
+  the non-linear displacement-versus-MPG relationship. A degree-3
+  polynomial offers the best balance; higher degrees cause
+  overfitting and degrade generalization.
+=================================================================

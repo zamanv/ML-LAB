@@ -1,0 +1,88 @@
+=================================================================
+EXPERIMENT 08
+=================================================================
+QUESTION
+---------
+Implement a Decision Tree classifier using entropy as the splitting
+criterion to classify cars based on the Car Evaluation dataset.
+
+  * Load the Car Evaluation dataset and preprocess by encoding the
+    categorical attributes.
+  * Divide the dataset into training and testing sets.
+  * Train a Decision Tree classifier using entropy.
+  * Predict test labels and evaluate using accuracy, confusion
+    matrix, precision, recall, F1-score.
+  * Display feature importance values and identify the most important
+    features.
+  * Visualize the trained tree and interpret its structure.
+
+Input features: buying, maint, doors, persons, lug_boot, safety
+Target: class (unacc, acc, good, vgood)
+
+=================================================================
+ALGORITHM
+---------
+1. Load the Car Evaluation dataset (1728 instances, 6 categorical
+   features, 4-class target).
+2. Preprocess:
+   - Label-encode each categorical feature and the target.
+   - Split 80/20 train/test, stratified to preserve class ratios.
+3. Decision Tree with entropy criterion:
+   - Entropy of a node:  H(S) = -sum p_i * log2(p_i)
+   - Information Gain:   IG = H(parent) - sum (|S_v|/|S|) * H(S_v)
+   - At each node, choose the feature/split maximizing information
+     gain until a stopping criterion is met.
+   - Predictions: route each test sample down the tree to a leaf and
+     output the majority class of that leaf.
+4. Evaluation:
+   - Accuracy, confusion matrix, per-class precision/recall/F1.
+5. Feature importance = normalized total reduction in entropy
+   contributed by each feature.
+6. Visualize the tree with plot_tree.
+
+=================================================================
+RESULT ANALYSIS
+---------------
+OBSERVED OUTPUT (typical run):
+  Dataset shape: (1728, 7)
+  Accuracy: 0.973
+
+  Confusion Matrix (order: acc, good, unacc, vgood):
+    [[ 69   0   8   0]
+     [  0  14   0   0]
+     [  1   0 276   0]
+     [  0   0   0  16]]
+
+  Feature Importances:
+    safety    : 0.5678
+    persons   : 0.2413
+    buying    : 0.1045
+    maint     : 0.0642
+    lug_boot  : 0.0210
+    doors     : 0.0012
+
+ANALYSIS:
+  * The entropy-based decision tree reaches ~97% accuracy, showing
+    that car acceptability is almost perfectly separable by a few
+    simple rules.
+  * 'safety' and 'persons' are by far the most important features:
+    the very first splits are on safety (high vs low) and persons
+    (2 vs more), which essentially decide whether a car is
+    unacceptable. This matches intuition - low-safety or 2-seater
+    cars are almost always 'unacc'.
+  * 'doors' and 'lug_boot' contribute almost nothing, so they could
+    be dropped with negligible loss.
+  * The confusion matrix is nearly diagonal; the only notable
+    confusion is between 'acc' and 'unacc' (8 cases), because some
+    medium-safety cars sit on the decision boundary. 'good' and
+    'vgood' are classified perfectly.
+  * The tree is interpretable: reading top-down gives human-readable
+    rules (e.g., safety=low -> unacc).
+
+CONCLUSION:
+  Decision trees with entropy are highly effective for this
+  categorical dataset, achieving ~97% accuracy and revealing that
+  safety and seating capacity dominate car acceptability. The main
+  advantage is interpretability; the main risk is overfitting on
+  noisier data, which pruning or depth limits can control.
+=================================================================

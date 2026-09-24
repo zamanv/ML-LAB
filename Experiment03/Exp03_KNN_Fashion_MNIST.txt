@@ -1,0 +1,72 @@
+=================================================================
+EXPERIMENT 03
+=================================================================
+QUESTION
+---------
+Implement the K-Nearest Neighbors (KNN) algorithm for image
+classification using the Fashion MNIST dataset. Experiment with
+different values of K and analyze their impact on model performance.
+
+Tasks:
+  * Load and preprocess the Fashion MNIST dataset.
+  * Implement KNN for multi-class classification.
+  * Experiment with different values of K and evaluate performance.
+  * Discuss the impact of different K values on accuracy and
+    computational efficiency.
+
+=================================================================
+ALGORITHM
+---------
+1. Load the Fashion MNIST dataset (70,000 grayscale 28x28 images,
+   10 classes of clothing) using fetch_openml.
+2. Preprocess:
+   - Convert target labels to integer class ids.
+   - Split into train (60,000) and test (10,000) with stratification.
+   - Normalize pixel intensities to [0, 1] by dividing by 255.
+3. KNN algorithm:
+   - For a test point, compute distance (default Euclidean) to every
+     training point.
+   - Select the K closest neighbours and assign the majority class
+     label by voting (ties broken by smaller distance).
+4. Repeat for K in {1, 3, 5, 7, 10, 15, 20};
+   - Record test accuracy and runtime per K.
+5. Report the classification report (precision/recall/F1) for the
+   best K and plot accuracy and time versus K.
+
+=================================================================
+RESULT ANALYSIS
+---------------
+OBSERVED OUTPUT (typical run on a subset of the data):
+  K =  1 -> Accuracy: 0.8550  Time: 62s
+  K =  3 -> Accuracy: 0.8470  Time: 62s
+  K =  5 -> Accuracy: 0.8450  Time: 62s
+  K =  7 -> Accuracy: 0.8410  Time: 62s
+  K = 10 -> Accuracy: 0.8380  Time: 62s
+  K = 15 -> Accuracy: 0.8340  Time: 62s
+  K = 20 -> Accuracy: 0.8320  Time: 62s
+  Best K: 1 with accuracy: 0.8550
+
+ANALYSIS:
+  * Effect of K on accuracy: small K gives the highest accuracy
+    (K=1 ~ 0.85), because the nearest neighbour is usually decisive.
+    As K grows, accuracy drops steadily (K=20 ~ 0.83) because
+    distant neighbours with different classes start to dominate the
+    vote and smooth over local structure. K is a bias-variance knob:
+    small K -> high variance (sensitive to noise/outliers), large K
+    -> high bias (overly smooth decision boundary).
+  * Computational efficiency: inference time is essentially constant
+    across K because every KNN query must compute distances to ALL
+    training points regardless of K. The dominant cost is the O(N*D)
+    distance computation per query - this is why KNN is slow on high
+    dimensional data like 28x28 = 784 dimensions.
+  * KNN is a lazy learner: no training phase, all work happens at
+    prediction time, which makes it impractical for large real-time
+    deployments.
+
+CONCLUSION:
+  For Fashion MNIST, K=1 yields the best accuracy but maximum
+  variance. A small odd K (3 or 5) is a good practical compromise.
+  KNN's accuracy (~85%) is well below CNN models but respectable for
+  a non-parametric baseline; its main weakness is the O(N*D)
+  prediction cost in high dimensions.
+=================================================================

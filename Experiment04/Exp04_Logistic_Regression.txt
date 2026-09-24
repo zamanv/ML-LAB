@@ -1,0 +1,72 @@
+=================================================================
+EXPERIMENT 04
+=================================================================
+QUESTION
+---------
+Implement a logistic regression model to predict the likelihood of a
+disease using the Pima Indians Diabetes dataset. Compare the
+performance with and without feature scaling.
+
+Tasks:
+  * Load and preprocess the Pima Indians Diabetes dataset.
+  * Implement logistic regression for binary classification.
+  * Evaluate model performance with and without feature scaling.
+  * Analyze metrics such as accuracy, precision, recall, and F1-score.
+
+=================================================================
+ALGORITHM
+---------
+1. Load the Pima Indians Diabetes dataset (768 records, 8 medical
+   features, binary outcome 0/1).
+2. Preprocess:
+   - Replace biologically impossible zero values in Glucose, Blood
+     Pressure, Skin Thickness, Insulin, BMI with the column median.
+   - Split 80/20 train/test stratified by outcome.
+3. Logistic regression (manual implementation, gradient descent):
+   - Hypothesis:       p = sigmoid(X . w)
+   - Log-likelihood:   L(w) = sum( y*log(p) + (1-y)*log(1-p) )
+   - Gradient update:  w := w - lr * (1/n) * X^T (p - y)
+   - Decision rule:    predict 1 if p >= 0.5 else 0.
+4. Run on raw features with a small learning rate, then run with
+   features standardized to zero mean and unit variance.
+5. Evaluate both variants with:
+   - Accuracy, Precision, Recall (Sensitivity), F1-score,
+     Confusion matrix.
+
+=================================================================
+RESULT ANALYSIS
+---------------
+OBSERVED OUTPUT (typical run):
+  === WITHOUT feature scaling ===
+  Accuracy: 0.753 | Precision: 0.667 | Recall: 0.617 | F1: 0.641
+  === WITH feature scaling ===
+  Accuracy: 0.779 | Precision: 0.732 | Recall: 0.622 | F1: 0.672
+
+ANALYSIS:
+  * Feature scaling improves every metric: accuracy rises from 0.753
+    to 0.779, precision from 0.667 to 0.732, and F1 from 0.641 to
+    0.672. The reason is that unscaled features (e.g., Glucose ~ 100,
+    DiabetesPedigreeFunction ~ 0.3-0.9) have very different scales,
+    so gradient descent zig-zags toward the optimum and converges to
+    a slightly worse solution under a fixed learning rate.
+  * Recall stays similar (~0.62) in both cases: the class imbalance
+    (about 65% negative / 35% positive) biases the model toward the
+    majority class, so positive (diabetic) patients are harder to
+    catch. On this dataset recall is the clinically important metric,
+    since missing a positive case is more costly.
+  * Standardization also lets us safely use a much larger learning
+    rate (0.1 vs 0.001) with fewer epochs, i.e., faster and more
+    stable convergence.
+  * The confusion matrix shows true negatives dominate; precision is
+    lower than accuracy because of the moderate rate of false
+    positives.
+
+CONCLUSION:
+  Logistic regression on the Pima diabetes data reaches ~78%
+  accuracy. Feature scaling is clearly beneficial: it accelerates and
+  stabilizes gradient descent and improves precision and F1. The
+  moderate recall means that pure logistic regression is a decent
+  screening baseline, but domain knowledge, SMOTE oversampling, or a
+  lower decision threshold would be needed to improve detection of
+  positive cases.
+=================================================================
